@@ -1,0 +1,25 @@
+08/Sept/2017
+
+Total Requests: 37919704260
+
+LR- RF 
+
+1. Following is the match rate count for Pubmatic - Rocketfuel
+		desktop	9404444862
+		mobile app	88379565
+		mobile web	2460950313
+2. We have total '47354115' impressions and Mobile app is '1736601' for which
+    	a. Pubmatic Uid is present
+    	b. We do not have uid for Rocket fuel.
+    	c. We have Liveramp id.
+    	d. And that Liveramp id has one or more Rocketfuel ids Mapped to it.
+3.	We have following impression distribution 
+		it	count
+		ds	15268966
+		ma	96955
+		mw	3204389
+	where,
+    	a. Pubmatic Uid is present
+    	b. We do not have uid for MM.
+    	c. We have Liveramp id.
+    	d. And that Liveramp id has one or more MM ids Mapped to it		
