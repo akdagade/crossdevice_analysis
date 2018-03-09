@@ -1,0 +1,195 @@
+21 Sept
+1. Tried creating table on RF, IDFA, AAID data copied earlier. Table creation failed on the data because of a corrupt compressed files. Trying to investigate the issue.
+2. Recopied the  RF, IDFA, AAID to hdfs
+4. Created table for @lin.chen's analysis - raw_cduid_407_mobid_lr - query is in progress will let you know the structure of the table.
+5. Completed level 2 for Pubmatic side query (exploded cduid parameter). All uids are for a single impression are in different rows. Will figure out how to combine them in level 3.
+~~~
+25 Sept
+1. Could not run any jobs on saturday because of the benchmark query running on the cluster.
+2. Creation of 'raw_cduid_407_mobid_lr' completed, for mobile device id.
+3. Resolved the corrupted file issue with RF,IDFA,AAID.
+4. Liveramp side tables for RF, IDFA, AAID are liveramp_rfuid_407, liveramp_idfa_407, liveramp_aaid_407.
+5. Pubmatic side data will be cleaned  (To convert it into useable format) in 2 more steps. Of which 1 is in progress.
+6. Will run the first analysis after completion of above task. Will provide ETA after running the query.
+~~~
+26 Sept:
+1. Step one of  Pubmatic side data  cleaning took longer than expected. 
+2. So, triggered the 2nd query in the morning (IST) today. Mappers completed, trackers 71%.
+3. Should take around 2 hours to complete, then we can start with Rocket fuel analysis.
+4. Will start with this first 'PubMatic ID is present but no RF ID and LiveRamp has the user details for RF'.
+5. Should take 12+ hours to run. But, will update the exact time once I get the mapper/reducer consumption data.
+6. ETA will change with the numbers of queries running in the cluster. (edited)
+~~~
+27 Sept:
+1. First analysis from Liveramp Rocketfuel completed.
+2. We have '47354115' impressions for which
+    a. Pubmatic Uid is present
+    b. We do not have uid for Rocket fuel.
+    c. We have Liveramp id.
+    d. And that Liveramp id has one or more Rocketfuel ids Mapped to it
+
+New Request:
+1. what about how many mobile app impressions that we could find a cookie id for
+2. we need to understand the lift in the number of impressions that we identified via LR for RF.   So we will need Total no. of impression for a day, how many we had a match for and how many did LR provide a match for. Similarly, for Tapad and Neustar. please share all the numbers
+~~~
+Oct 3:
+To highlight few delay causing factors we discussed -
+Other parallel queries
+Unexpected query failures
+No estimation for join queries, as no such queries were fired before. (Can only be estimated once the query starts running)
+~~~
+Oct 4:
+1.Total Impressions : 37919704260
+2. Match rate for Mobile app is 1736601 impressions (Liveramp - RF)
+
+Lin Chen [10:55 PM] 
+hey Akshay, let me summarize what data points we need for identify the lift (which is based on the first analysis you did)
+-  Which date was it you run the analysis against?
+- Is that ‘47354115’  impression include mobile impression? In other words, is “1736601” number included in “47354115"?
+- On that same day, Total impressions Pubmatic send to RF a day?
+- On that same day, Total mobile impression Pubmatic send to RF a day?
+In this way, we can identify the actual lift we are going to see against RF
+
+Akshay Dagade [11:03 PM] 
+1. 08 Sept
+2. Yes
+3 and 4. I think pubmatic - RF match rate will help you with the lift.
+
+example: Lets say Pubmatic had a match rate of 100Mn impressions with RF, you can add 47354115 to it to get the total match rate. Let me know if this works.
+
+Dinesh Kandhari [11:06 PM] 
+@akshay.dagade: Isn't 37919704260 low for the impressions we received in a day? Do we know how many bid requests did we send to RF on the same day?
+~~~
+Oct 5
+1. Following is the match rate count for Pubmatic - Rocketfuel
+    desktop    9404444862
+    mobile app    88379565
+    mobile web    2460950313
+2. Uploaded Media Math data to hdfs
+3. Uncomressed MM data.
+4. Ran Liveramp-MM analysis
+    a. Pubmatic Uid is present
+    b. We do not have uid for MM.
+    c. We have Liveramp id.
+    d. And that Liveramp id has one or more MM ids Mapped to it.
+    Last stage still running
+5. Ran a query to get number of impressions where we sent bids to RF, MM etc (Level 1 - Full day).
+~~~
+Oct 6:
+1.    We have following impression distribution 
+        it    count
+        ds    15268966
+        ma    96955
+        mw    3204389
+    where,
+        a. Pubmatic Uid is present
+        b. We do not have uid for MM.
+        c. We have Liveramp id.
+        d. And that Liveramp id has one or more MM ids Mapped to it        
+
+2.    We have following impression distribution 
+        it    count
+        ds    24978520
+        ma    505302
+        mw    4505552
+    where,
+        a. Pubmatic Uid is present
+        b. We do not have uid for TTD.
+        c. We have Liveramp id.
+        d. And that Liveramp id has one or more TTD ids Mapped to it
+~~~
+Oct 10:
+1.These are the impression count where we sent bids to RF, MM, TTD broken down by platform.
+(Attached data for number of impressions in which we sent bids to RF,TTD,MM)
+
+2. I ran a query to pull liveramp device id analysis as dicussed with @manjari.sharda.
+However, the query was stuck for more than 17 hours. Not sure why.
+I have rerun the analysis. (First stuck query)
+
+~~~
+Oct 11:
+Update:
+1. Ran Liveramp app analysis fro MM and RF, query stuck for for that 17 hours at 99%.
+2. Same happened during the rerun. Will investigate furtur into it.
+3. Ran a query for Pubmatic-TTD/MM match rate.
+4. All data pulled till date is available in below xls.
+5. Tapad uids are not logged into cduid parameter. Will check this with engineering team.
+6. Regarding, mobile app I tried other presto cluster, but I am having issues even there. Trying to resolve it
+
+Ashim Ghosh [9:45 AM] 
+In case of Tapad's syncup flow, the PM UID <-> Tapad Cluster UID is provided though Tapad's cross device graph.
+
+~~~
+Oct 12:
+1. synced up with Ameya regarding mobile id issue but had no luck with the solution.
+I will today ping him again for the assistance.
+2.I have got pubmatic -dsp sync up count for TTD and MM.
+3. And regarding tapad data, it is not very easy to process in its raw format. 
+4. Can we ask them for the data in a tablular csv/tsv format like liveramp. And, in many cases i do not see pubmatic uid in their graph. 
+5.Attached updated file with Pubmatic-dsp match rate
+6. Figured a way to parse tapad file
+7. But the files are incorrect
+
+New Request:
+These were the 3 pub ids - 37855, 137711, 154037
+when we did this this test on 3 publishers, I think you worked on it, we saw a 10% increase
+~~~
+Oct 16:
+1. 
+Hi @manjari.sharda,
+We are waiting for the data from Tapad, as discussed over the email with them on friday.
+And, I will ask for the update from @ameya.kulkarni today.
+
+~~~
+Oct 17:
+Akshay Dagade [8:23 PM] 
+Yes, will provide an update today. Ameya has suggested a solution, will try that out and post the update 
+(Did not work sent out an email next day)
+~~~
+Oct 18:
+1.
+Hi Team,
+This is regarding the mobile app analysis, 
+After serveral attempts the query is not working for the analysis. 
+I have looped in Ameya and few people form this channel. 
+For everyone's reference, attaching the email here.
+
+2.
+Tapad newfiles came in, but incorrect
+
+3.
+Akshay Dagade [6:04 PM] 
+Hi Ameya,
+The issue is not resolved yet.
+I tried reducing the data set, but the last reducer always freezes. 
+Refer the following pig script, where I used a join between a very small data set.
+~~~
+19 Oct - 
+1.
+Recieved correct Tapad files
+~~~
+25 Oct:
+
+Reply from Ameya
+Hi Akshay,
+It seems to be an issue with the way the table is set and the volume of records ( ~4BN ) in both tables.
+Please can try creating an external hive table and add partitions similar to how other tables are present.
+Let me know if that does not work
+~~~
+26 Oct:
+Hi Ameya,
+I have attached the implementation of the external table as well as the query.
+Following is the app id:
+application_1502886522713_409442
+
+The job is still stuck at 99%, even after using the external table.
+http://nyc2aggr199.nyc7.pubmatic.com:8088/cluster/app/application_1502886522713_409442
+~~~
+28 Oct:
+Ameya Created
+https://inside.pubmatic.com:9443/jira/browse/ANLT-8140
+Asked me to comment details, done that.
+~~~
+30 Oct:
+Ran a skewness query to test skewness as Kunal U suggested.
+Pinged the details, waiting for his reply
